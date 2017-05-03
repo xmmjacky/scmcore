@@ -169,6 +169,8 @@ namespace DapperExtensions.Mapper
 
         public bool IsReadOnly { get; protected set; }
 
+        public bool IsKey { get; protected set; }
+
         public PropertyInfo PropertyInfo { get; protected set; }
 
         public PropertyMap Column(string columnName)
