@@ -87,7 +87,11 @@ namespace DapperExtensions.Mapper
             Type type = typeof(T);
             bool hasDefinedKey = Properties.Any(p => p.Value.KeyType != KeyType.NotAKey);
             PropertyMap keyMap = null;
-            foreach (var propertyInfo in type.GetProperties())
+            foreach (var propertyInfo in type.GetProperties())//遍历所有字段
+
+                //处理字段的的属性
+                // var keyInfo = infos.FirstOrDefault(t => (t.GetCustomAttributes(typeof(KeyAttribute)).Any()));获取主键
+                //var keyStr = keyInfo != null ? keyInfo.Name : "Id";
             {
                 if (Properties.Any(p => p.Value.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
                 {
