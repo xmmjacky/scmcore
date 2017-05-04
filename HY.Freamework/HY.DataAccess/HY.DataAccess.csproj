@@ -115,6 +115,7 @@
     <Compile Include="SqlHelper\SqlDBHelper\DBAdaptor.cs" />
     <Compile Include="SqlHelper\SqlDBHelper\SQLHelper.cs" />
     <Compile Include="Tool\Common.cs" />
+    <Compile Include="Utils\AttributeHelper.cs" />
     <Compile Include="Utils\DataReaderExtensions.cs" />
     <Compile Include="Utils\DataUtils.cs" />
     <Compile Include="Utils\DbColumnAttribute.cs" />

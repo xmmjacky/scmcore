@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using HY.DataAccess.Utils;
 
 namespace DapperExtensions.Mapper
 {
@@ -87,44 +88,32 @@ namespace DapperExtensions.Mapper
             Type type = typeof(T);
             bool hasDefinedKey = Properties.Any(p => p.Value.KeyType != KeyType.NotAKey);
             PropertyMap keyMap = null;
-            foreach (var propertyInfo in type.GetProperties())//遍历所有字段
-
-                //处理字段的的属性
-                // var keyInfo = infos.FirstOrDefault(t => (t.GetCustomAttributes(typeof(KeyAttribute)).Any()));获取主键
-                //var keyStr = keyInfo != null ? keyInfo.Name : "Id";
+            var infos = type.GetProperties();
+            //处理字段的的属性
+            var keyInfo = infos.FirstOrDefault(t => (t.GetCustomAttributes(typeof(DbColumnAttribute)).Any()));// 获取主键
+            var keyStr = keyInfo?.Name ?? "Id";
+            var tempkey = type.GetCustomAttributeValue<DbColumnAttribute>(x => x.IsKey.ToString(), keyInfo.Name);
+            foreach (PropertyMap map in from propertyInfo in infos where !Properties.Any(p => p.Value.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)) where (canMap == null || canMap(type, propertyInfo)) select Map(propertyInfo) into map where !hasDefinedKey select map)
             {
-                if (Properties.Any(p => p.Value.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
+                if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    continue;
+                    keyMap = map;
                 }
-
-                if ((canMap != null && !canMap(type, propertyInfo)))
+                else if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
                 {
-                    continue;
-                }
-
-                PropertyMap map = Map(propertyInfo);
-                if (!hasDefinedKey)
-                {
-                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        keyMap = map;
-                    }
-                    else if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
-                    {
-                        keyMap = map;
-                    }
+                    keyMap = map;
                 }
             }
 
-            if (keyMap != null)
-            {
-                //设置自增
-                keyMap.Key(_propertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
-                    ? _propertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
-                    : KeyType.Assigned);
-            }
+            //if (keyMap != null)
+            //{
+            //    //设置自增
+            //    keyMap.Key(_propertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
+            //        ? _propertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
+            //        : KeyType.Assigned);
+            //}
         }
+
 
         /// <summary>
         /// Fluently, maps an entity property to a column
