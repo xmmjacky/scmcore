@@ -21,9 +21,9 @@ namespace Demo.Tests.ConsoleApp.MySql
 
             var tHeaderobj = new TSoHeader()
             {
-                id = 1001,
+                id = 1007,
                 cancel = 1,
-                codec = "order000001",
+                codec = "order000007",
                 do_qty = 10,
                 handle = 1,
                 invoice_type = 1,

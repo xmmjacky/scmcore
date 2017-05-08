@@ -77,7 +77,7 @@ namespace DapperExtensions.Demo.Model.Entities
     [Serializable]
     public class TSoHeader
     {
-        [DbColumn(Ignore = true)]
+        [DbColumn(IsKey = true,Ignore = true)]
         public long id { get; set; }
         public string app { get; set; }
         public long unit_id { get; set; }

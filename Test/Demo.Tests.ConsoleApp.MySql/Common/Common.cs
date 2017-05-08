@@ -29,7 +29,7 @@ namespace Demo.Tests.ConsoleApp.MySql
            var temp=Convert.ToInt32(DapperExtension.Instance(DataBaseType.MySql).Insert(GetConnByKey(), entity, null,null));
 
 
-               
+               return;
         }
 
 

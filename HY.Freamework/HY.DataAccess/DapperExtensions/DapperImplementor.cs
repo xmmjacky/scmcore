@@ -106,31 +106,30 @@ namespace DapperExtensions
             }
 
             IDictionary<string, object> keyValues = new ExpandoObject();
-            string sql = SqlGenerator.Insert(classMap);
-            if (identityColumn != null)
-            {
-                IEnumerable<long> result;
-                if (SqlGenerator.SupportsMultipleStatements())
-                {
-                    sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
-                }
-                else
-                {
-                    connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
-                    sql = SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
-                }
+            var sql = SqlGenerator.Insert(classMap);
 
-                long identityValue = result.First();
-                int identityInt = Convert.ToInt32(identityValue);
-                keyValues.Add(identityColumn.Value.Value.Name, identityInt);
-                identityColumn.Value.Value.PropertyInfo.SetValue(entity, identityInt, null);
+            IEnumerable<long> result;
+            if (SqlGenerator.SupportsMultipleStatements())
+            {
+                sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
+                result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
             }
             else
             {
                 connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
+                sql = SqlGenerator.IdentitySql(classMap);
+                result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
             }
+
+            var identityValue = result.First();
+            var identityInt = Convert.ToInt32(identityValue);
+            if (identityInt != 0)
+            {
+                keyValues.Add(identityColumn.Value.Value.Name, identityInt);
+                identityColumn.Value.Value.PropertyInfo.SetValue(entity, identityInt, null);
+            }
+           
+
 
             foreach (var column in nonIdentityKeyProperties)
             {
